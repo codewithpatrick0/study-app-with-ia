@@ -1,0 +1,45 @@
+.mesh-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 250px;
+  width: 200px;
+  border: 5px dashed  rgb(123, 119, 119);
+  border-radius: 20%;
+  padding: 20px;
+
+}
+
+.paragraph-mesh-container {
+  text-align: center;
+}
+
+.import-mesh-button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 999px;
+  background: #4f46e5;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.import-mesh-button:hover {
+  background: #4338ca;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+}
+
+.import-mesh-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+.import-mesh-button:focus-visible {
+  outline: 3px solid #a5b4fc;
+  outline-offset: 2px;
+}
