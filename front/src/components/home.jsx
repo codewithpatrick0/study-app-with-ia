@@ -10,12 +10,31 @@ export function ShowImportMesh(){
     const fileInputRef = useRef(null);
     const [meshFile, setMeshFile] = useState(null); //Fundamental tool for remember changing info
 
-    function handleFileChange(event){
-        const newFile = event.target.files[0] // Select the first file selected
+    async function handleFileChange(event){
+        const newFile = event.target.files[0]; // Select the first file selected
+
         if (!newFile) return; // User closed the picker without choosing
 
-        setMeshFile(newFile);
-        console.log('Malla seleccionada:', newFile.name, newFile.type, newFile.size)
+        const formData = new FormData();
+        formData.append('file', newFile);
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/base-processing', {
+                method: 'POST',
+                body: formData
+            })
+
+            if (!response) {
+                throw new Error("El servidor respondió con un error");
+            }
+            setMeshFile(newFile);
+            const data = await response.json();
+            console.log('Malla seleccionada:', newFile.name, newFile.type, newFile.size)
+            console.log(data);
+
+        } catch(error){
+            console.error('error:', error)
+        }
     }
 
     return (
