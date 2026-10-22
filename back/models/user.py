@@ -10,3 +10,4 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(50), unique=True)
     full_name: Mapped[str] = mapped_column(String(150))
     email: Mapped[str] = mapped_column(String(255), unique=True)
+    hashed_password: Mapped[str] = mapped_column(String(255))  # Argon2 hash, never the plain password
