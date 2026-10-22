@@ -2,7 +2,7 @@ import {useState, useRef} from 'react'
 
 export function StudyMethodTitle(){
     return (
-        <h1>AI Easy Study</h1>
+        <h1 className='app-title'>AI Easy Study</h1>
     )
 }
 

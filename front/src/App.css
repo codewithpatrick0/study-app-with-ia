@@ -1,3 +1,14 @@
+.app-title {
+  margin: 0 0 24px;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(90deg, #4f46e5, #9333ea);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .mesh-container {
   display: flex;
   flex-direction: column;
