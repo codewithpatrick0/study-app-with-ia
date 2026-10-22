@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
 
-  height: 250px;
+  min-height: 250px;
   width: 200px;
   border: 5px dashed  rgb(123, 119, 119);
   border-radius: 20%;
@@ -14,6 +14,14 @@
 
 .paragraph-mesh-container {
   text-align: center;
+}
+
+.mesh-file-name {
+  max-width: 100%;
+  margin: 12px 0 0;
+  font-size: 0.85rem;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .import-mesh-button {
@@ -42,4 +50,46 @@
 .import-mesh-button:focus-visible {
   outline: 3px solid #a5b4fc;
   outline-offset: 2px;
+}
+
+.import-mesh-button:disabled {
+  background: #a1a1aa;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.mesh-view {
+  margin-top: 32px;
+}
+
+.cycles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.cycle-card {
+  padding: 16px;
+  border: 1px solid #e0e7ff;
+  border-radius: 12px;
+  background: #fafaff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.cycle-card h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #4f46e5;
+}
+
+.cycle-card ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.cycle-card li + li {
+  margin-top: 6px;
 }
