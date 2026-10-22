@@ -17,7 +17,7 @@ async def base_processing(file: UploadFile):
 
         processed_file = await processing_file(data, file.content_type)
 
-        return {"name": file.filename, "type": file.content_type, "size": len(data), "response": processed_file}
+        return processed_file
     except UnsupportedFileError as e:
         raise HTTPException(status_code=415, detail=str(e))
     except ClaudeError as e:
