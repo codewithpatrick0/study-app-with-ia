@@ -1,0 +1,125 @@
+{
+  "career": "Ingeniería de Sistemas e Informática",
+  "university": "UTP",
+  "cycles": [
+    {
+      "number": 1,
+      "courses": [
+        "Principios de Algoritmos",
+        "Introducción a la Vida Universitaria",
+        "Matemática 1",
+        "Comprensión y Redacción de Textos 1",
+        "Individuo y Medio Ambiente",
+        "Inglés 1"
+      ]
+    },
+    {
+      "number": 2,
+      "courses": [
+        "Introducción a las TIC",
+        "Matemática Discreta",
+        "Matemática 2",
+        "Problemas y Desafíos en el Perú Actual",
+        "Comprensión y Redacción de Textos 2",
+        "Estadística Descriptiva y Probabilidades",
+        "Inglés 2"
+      ]
+    },
+    {
+      "number": 3,
+      "courses": [
+        "Taller de Programación",
+        "Ciudadanía y Reflexión Ética",
+        "Cálculo 1",
+        "Estadística Inferencial",
+        "Mecánica Clásica",
+        "Laboratorio de Mecánica Clásica",
+        "Inglés 3"
+      ]
+    },
+    {
+      "number": 4,
+      "courses": [
+        "Programación Orientada a Objetos",
+        "Análisis y Diseño de Algoritmos",
+        "Cálculo 2",
+        "Investigación Académica",
+        "Base de Datos",
+        "Fundamentos de Electromagnetismo",
+        "Laboratorio de Fundamentos de Electromagnetismo",
+        "Inglés 4"
+      ]
+    },
+    {
+      "number": 5,
+      "courses": [
+        "Algoritmos y Estructuras de Datos",
+        "Diseño de Patrones",
+        "Taller de Programación Web",
+        "Redes y Comunicación de Datos 1",
+        "Sistemas Operativos",
+        "Herramientas Informáticas para la Toma de Decisiones",
+        "Base de Datos 2"
+      ]
+    },
+    {
+      "number": 6,
+      "courses": [
+        "Análisis y Diseño de Sistemas de Información",
+        "Java Script Avanzado",
+        "Marcos de Desarrollo Web",
+        "Hoja de Estilo en Cascada Avanzado",
+        "Gestión de Proyectos",
+        "Administración y Organización de Empresas",
+        "Curso Integrador 1: Sistemas - Software"
+      ]
+    },
+    {
+      "number": 7,
+      "courses": [
+        "Lenguajes de Programación",
+        "Teoría de Sistemas",
+        "Diseño de Productos y Servicios",
+        "Desarrollo Web Integrado",
+        "Herramientas de Desarrollo",
+        "Liderazgo y Gestión de Equipos",
+        "Seguridad Informática"
+      ]
+    },
+    {
+      "number": 8,
+      "courses": [
+        "Herramientas para la Comunicación Efectiva",
+        "Innovación y Transformación Digital",
+        "Herramientas de Prototipado",
+        "Negociación y Narrativa",
+        "Diseño e Implementación de Arquitectura Empresarial",
+        "Gestión del Servicio TI",
+        "Inteligencia de Negocios"
+      ]
+    },
+    {
+      "number": 9,
+      "courses": [
+        "Formación para la Investigación - Sistemas",
+        "Interacción Hombre Máquina",
+        "Curso Integrador 2: Sistemas",
+        "Planeamiento Estratégico de las TICs",
+        "Sistemas de Información Empresarial",
+        "Gestión del Conocimiento"
+      ]
+    },
+    {
+      "number": 10,
+      "courses": [
+        "Ética Profesional",
+        "Herramientas de Desarrollo Profesional - TIC",
+        "Formación para la Empleabilidad",
+        "Servicios Cloud",
+        "Ingeniería Económica",
+        "Taller de Investigación - Sistemas",
+        "Electivo 1"
+      ]
+    }
+  ]
+}
