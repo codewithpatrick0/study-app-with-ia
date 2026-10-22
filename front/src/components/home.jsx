@@ -24,7 +24,7 @@ export function ShowImportMesh(){
                 body: formData
             })
 
-            if (!response) {
+            if (!response.ok) {
                 throw new Error("El servidor respondió con un error");
             }
             setMeshFile(newFile);
