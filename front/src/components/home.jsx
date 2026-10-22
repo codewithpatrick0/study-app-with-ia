@@ -75,7 +75,7 @@ export function ShowImportMesh({ onMeshLoaded }){
 export function MeshView( {mesh} ) {
     return (
         <section className='mesh-view'>
-            <h2>{mesh.career} - {mesh.university}</h2>
+            <h2 className='mesh-title'>{mesh.career} - {mesh.university}</h2>
 
             <div className='cycles-grid'>
                 {mesh.cycles.map((cycle) => (
