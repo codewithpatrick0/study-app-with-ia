@@ -35,7 +35,7 @@
   overflow-wrap: anywhere;
 }
 
-.import-mesh-button {
+.primary-button {
   padding: 10px 24px;
   border: none;
   border-radius: 999px;
@@ -47,23 +47,23 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-.import-mesh-button:hover {
+.primary-button:hover {
   background: #4338ca;
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
 }
 
-.import-mesh-button:active {
+.primary-button:active {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
 }
 
-.import-mesh-button:focus-visible {
+.primary-button:focus-visible {
   outline: 3px solid #a5b4fc;
   outline-offset: 2px;
 }
 
-.import-mesh-button:disabled {
+.primary-button:disabled {
   background: #a1a1aa;
   cursor: not-allowed;
   transform: none;
@@ -103,4 +103,10 @@
 
 .cycle-card li + li {
   margin-top: 6px;
+}
+
+.mesh-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
 }

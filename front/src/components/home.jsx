@@ -59,7 +59,7 @@ export function ShowImportMesh({ onMeshLoaded }){
             />
             
             <button
-                className='import-mesh-button'
+                className='primary-button'
                 onClick={() => fileInputRef.current.click()}
                 disabled={loading}
             >
@@ -88,6 +88,13 @@ export function MeshView( {mesh} ) {
                         </ul>
                     </article>
                 ))}
+            </div>
+
+            <div className='mesh-actions'>
+                {/* TODO: call the API to generate the markdown classes for the user's cycle */}
+                <button type='button' className='primary-button'>
+                    Generar material de estudio
+                </button>
             </div>
         </section>
     )
