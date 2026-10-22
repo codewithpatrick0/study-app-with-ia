@@ -3,7 +3,10 @@ name = "study-app-with-ia"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.20.1",
     "anthropic>=2.0.0",
     "fastapi[standard]>=0.159.1",
+    "psycopg[binary]>=3.3.6",
     "pydantic-settings>=2.16.1",
+    "sqlalchemy>=2.1.6",
 ]
