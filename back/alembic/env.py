@@ -7,6 +7,7 @@ from alembic import context
 
 from back.config.settings import settings
 from back.database import Base
+import back.models  # noqa: F401  Registers every table on Base.metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
