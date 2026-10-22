@@ -1,0 +1,9 @@
+[project]
+name = "study-app-with-ia"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=2.0.0",
+    "fastapi[standard]>=0.159.1",
+    "pydantic-settings>=2.16.1",
+]
