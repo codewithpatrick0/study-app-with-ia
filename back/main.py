@@ -15,7 +15,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=['http://localhost:5173', 'http://127.0.0.1:5173'],
-    allow_methods=['POST'],
+    allow_methods=['GET', 'POST'],
     allow_headers=['Content-Type'],  # Needed for JSON bodies sent from the browser
     allow_credentials=True,  # Lets the browser send the auth cookie
 )
@@ -58,6 +58,11 @@ def logout(response: Response):
         secure=settings.cookie_secure,
         path="/",
     )
+
+@app.get("/auth/me", response_model=UserRead)
+def me(current_user: User = Depends(get_current_user)):
+    # get_current_user already answers 401 when the cookie is missing or invalid
+    return current_user
 
 @app.post("/base-processing")
 async def base_processing(file: UploadFile, current_user: User = Depends(get_current_user)):
