@@ -48,6 +48,11 @@ export function ShowImportMesh({ onMeshLoaded }){
 
     return (
         <section className="mesh-container">
+            {/* Dashed frame drawn in SVG so its dashes can move around the border */}
+            <svg className="mesh-border" aria-hidden="true">
+                <rect width="100%" height="100%" rx="20%" ry="20%" pathLength="100" />
+            </svg>
+
             <p className='paragraph-mesh-container'>
                 <strong> Inserta tu malla curricular </strong>
             </p>
