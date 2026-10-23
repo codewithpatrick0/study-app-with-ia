@@ -7,6 +7,7 @@ from argon2.exceptions import InvalidHashError, VerificationError
 from .config.settings import settings
 
 JWT_ALGORITHM = "HS256"
+ACCESS_TOKEN_COOKIE = "access_token"
 
 # Argon2id with the library's recommended defaults (memory-hard, salted per hash)
 password_hasher = PasswordHasher()
@@ -38,3 +39,16 @@ def create_access_token(user_id: int) -> str:
         "exp": now + timedelta(minutes=settings.access_token_expire_minutes),
     }
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=JWT_ALGORITHM)
+
+def decode_access_token(token: str) -> int | None:
+    """Return the user id inside a valid token, or None if it's forged, expired or malformed."""
+    try:
+        payload = jwt.decode(
+            token,
+            settings.jwt_secret_key,
+            algorithms=[JWT_ALGORITHM],  # Only accept the algorithm we sign with
+            options={"require": ["sub", "iat", "exp"]},
+        )
+        return int(payload["sub"])
+    except (jwt.InvalidTokenError, ValueError):
+        return None

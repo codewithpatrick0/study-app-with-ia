@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     database_url: str
     jwt_secret_key: str = Field(min_length=32) 
     access_token_expire_minutes: int = 30
+    cookie_secure: bool = True  # Send the auth cookie only over HTTPS; set COOKIE_SECURE=false for local http
 
     @field_validator("database_url")
     @classmethod

@@ -1,11 +1,14 @@
-from fastapi import Depends, FastAPI, UploadFile, HTTPException, status
+from fastapi import Depends, FastAPI, Response, UploadFile, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
+from .config.settings import settings
 from .database import get_db
+from .dependencies import get_current_user
+from .models import User
 from .processing import processing_file, ClaudeError, UnsupportedFileError
-from .schemas import LoginRequest, Token, UserCreate, UserRead
-from .security import create_access_token
+from .schemas import LoginRequest, UserCreate, UserRead
+from .security import ACCESS_TOKEN_COOKIE, create_access_token
 from .services import UserAlreadyExistsError, authenticate_user, create_user
 
 app = FastAPI()
@@ -14,6 +17,7 @@ app.add_middleware(
     allow_origins=['http://localhost:5173', 'http://127.0.0.1:5173'],
     allow_methods=['POST'],
     allow_headers=['Content-Type'],  # Needed for JSON bodies sent from the browser
+    allow_credentials=True,  # Lets the browser send the auth cookie
 )
 
 @app.post("/users", response_model=UserRead, status_code=status.HTTP_201_CREATED)
@@ -23,20 +27,40 @@ def register_user(data: UserCreate, db: Session = Depends(get_db)):
     except UserAlreadyExistsError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-@app.post("/auth/login", response_model=Token)
-def login(data: LoginRequest, db: Session = Depends(get_db)):
+@app.post("/auth/login", response_model=UserRead)
+def login(data: LoginRequest, response: Response, db: Session = Depends(get_db)):
     user = authenticate_user(db, data.username_or_email, data.password.get_secret_value())
     if user is None:
         # Same message whether the user exists or not, so attackers can't probe accounts
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username/email or password",
-            headers={"WWW-Authenticate": "Bearer"},
         )
-    return Token(access_token=create_access_token(user.id))
+    # The token travels only in this cookie, never in the JSON body
+    response.set_cookie(
+        key=ACCESS_TOKEN_COOKIE,
+        value=create_access_token(user.id),
+        httponly=True,                 # JavaScript can't read it (protects against XSS)
+        samesite="strict",             # Only sent from our own site (protects against CSRF)
+        secure=settings.cookie_secure, # HTTPS only in production
+        max_age=settings.access_token_expire_minutes * 60,
+        path="/",
+    )
+    return user
+
+@app.post("/auth/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(response: Response):
+    # JavaScript can't delete an HttpOnly cookie, so the server does it
+    response.delete_cookie(
+        key=ACCESS_TOKEN_COOKIE,
+        httponly=True,
+        samesite="strict",
+        secure=settings.cookie_secure,
+        path="/",
+    )
 
 @app.post("/base-processing")
-async def base_processing(file: UploadFile):
+async def base_processing(file: UploadFile, current_user: User = Depends(get_current_user)):
     try:
         data = await file.read()
 
