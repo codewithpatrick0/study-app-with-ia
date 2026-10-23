@@ -40,12 +40,12 @@ export function ShowRegister({ onRegistered, onGoToLogin }) {
     }
 
     return (
-        <section className="login">
-            <h3>Crea tu cuenta en AI Easy Study</h3>
+        <section className="auth-card">
+            <h2 className="auth-title">Crea tu cuenta</h2>
 
             {/* Same limits as the backend schema (UserCreate), so most mistakes are caught before sending */}
-            <form onSubmit={handleRegister}>
-                <label htmlFor="register-username">Nombre de usuario: </label>
+            <form className="auth-form" onSubmit={handleRegister}>
+                <label htmlFor="register-username">Nombre de usuario</label>
                 <input
                     id="register-username"
                     type="text"
@@ -59,7 +59,7 @@ export function ShowRegister({ onRegistered, onGoToLogin }) {
                     onChange={(e) => setUsername(e.target.value)}
                 />
 
-                <label htmlFor="register-full-name">Nombre completo: </label>
+                <label htmlFor="register-full-name">Nombre completo</label>
                 <input
                     id="register-full-name"
                     type="text"
@@ -70,7 +70,7 @@ export function ShowRegister({ onRegistered, onGoToLogin }) {
                     onChange={(e) => setFullName(e.target.value)}
                 />
 
-                <label htmlFor="register-email">Correo: </label>
+                <label htmlFor="register-email">Correo</label>
                 <input
                     id="register-email"
                     type="email"
@@ -81,7 +81,7 @@ export function ShowRegister({ onRegistered, onGoToLogin }) {
                     onChange={(e) => setEmail(e.target.value)}
                 />
 
-                <label htmlFor="register-password">Contraseña: </label>
+                <label htmlFor="register-password">Contraseña</label>
                 <input
                     id="register-password"
                     type="password"
@@ -93,14 +93,14 @@ export function ShowRegister({ onRegistered, onGoToLogin }) {
                     onChange={(e) => setPassword(e.target.value)}
                 />
 
-                <button type="submit" disabled={loading}>
+                <button type="submit" className="primary-button" disabled={loading}>
                     {loading ? 'Registrando...' : 'Registrarse'}
                 </button>
             </form>
 
-            {error && <p>{error}</p>}
+            {error && <p className="form-error" role="alert">{error}</p>}
 
-            <p>
+            <p className="auth-switch">
                 ¿Ya tienes usuario?{' '}
                 <button type="button" className="link-button" onClick={onGoToLogin}>
                     Inicia sesión

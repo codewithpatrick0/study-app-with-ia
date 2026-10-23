@@ -31,36 +31,38 @@ export function ShowLogin({ onLogin, onGoToRegister, notice }) {
         }
     }
     return (
-        <section className="login">
-            <h3>Inicia sesión en AI Easy Study</h3>
+        <section className="auth-card">
+            <h2 className="auth-title">Inicia sesión</h2>
 
-            {notice && <p>{notice}</p>}
+            {notice && <p className="form-notice" role="status">{notice}</p>}
 
-            <form onSubmit={handleLogin}>
-                <label htmlFor="username-or-email">Nombre de usuario o correo: </label>
+            <form className="auth-form" onSubmit={handleLogin}>
+                <label htmlFor="username-or-email">Nombre de usuario o correo</label>
                 <input
                     id="username-or-email"
                     type="text"
                     autoComplete="username"
+                    required
                     value={usernameOrEmail}
                     onChange={(e) => setUsernameOrEmail(e.target.value)}
                 />
 
-                <label htmlFor="password">Contraseña: </label>
+                <label htmlFor="password">Contraseña</label>
                 <input
                     id="password"
                     type="password"
                     autoComplete="current-password"
+                    required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
 
-                <button type="submit">Iniciar sesión</button>
+                <button type="submit" className="primary-button">Iniciar sesión</button>
             </form>
 
-            {error && <p>{error}</p>}
+            {error && <p className="form-error" role="alert">{error}</p>}
 
-            <p>
+            <p className="auth-switch">
                 ¿No tienes usuario?{' '}
                 <button type="button" className="link-button" onClick={onGoToRegister}>
                     Regístrate

@@ -41,29 +41,39 @@ function App(){
     );
   }
 
-  return isAuthorized ? (
+  if (!isAuthorized) {
+    return (
+      <main className="auth-page">
+        <StudyMethodTitle />
+
+        {authScreen === "register" ? (
+          <ShowRegister
+            onRegistered={() => {
+              setNotice("Account created. You can log in now.");
+              setAuthScreen("login");
+            }}
+            onGoToLogin={() => setAuthScreen("login")}
+          />
+        ) : (
+          <ShowLogin
+            notice={notice}
+            onLogin={() => setIsAuthorized(true)}
+            onGoToRegister={() => {
+              setNotice(null);
+              setAuthScreen("register");
+            }}
+          />
+        )}
+      </main>
+    );
+  }
+
+  return (
     <>
       <StudyMethodTitle />
       <ShowImportMesh onMeshLoaded={setMesh} />
       {mesh && <MeshView mesh={mesh} />}
     </>
-  ) : authScreen === "register" ? (
-    <ShowRegister
-      onRegistered={() => {
-        setNotice("Account created. You can log in now.");
-        setAuthScreen("login");
-      }}
-      onGoToLogin={() => setAuthScreen("login")}
-    />
-  ) : (
-    <ShowLogin
-      notice={notice}
-      onLogin={() => setIsAuthorized(true)}
-      onGoToRegister={() => {
-        setNotice(null);
-        setAuthScreen("register");
-      }}
-    />
   )
 }
 

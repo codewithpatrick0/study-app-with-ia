@@ -128,6 +128,91 @@
   margin-top: 24px;
 }
 
+.auth-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 16px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  box-sizing: border-box;
+  padding: 32px;
+  border: 1px solid #e0e7ff;
+  border-radius: 16px;
+  background: #fafaff;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.08);
+
+  animation: fade-in-up 0.5s ease 0.2s both; /* Starts after the title */
+}
+
+.auth-title {
+  margin: 0 0 20px;
+  font-size: 1.4rem;
+  text-align: center;
+  color: #4f46e5;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-form label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.auth-form input {
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: white;
+  font: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.auth-form .primary-button {
+  margin-top: 8px;
+}
+
+.form-error,
+.form-notice {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.form-error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.form-notice {
+  margin: 0 0 16px;
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.auth-switch {
+  margin: 20px 0 0;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #6b7280;
+}
+
 /* A button that looks like a link: it changes the screen, it doesn't go to a URL */
 .link-button {
   padding: 0;
