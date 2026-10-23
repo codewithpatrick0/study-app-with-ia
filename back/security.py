@@ -1,8 +1,18 @@
+from datetime import datetime, timedelta, timezone
+
+import jwt
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
 
+from .config.settings import settings
+
+JWT_ALGORITHM = "HS256"
+
 # Argon2id with the library's recommended defaults (memory-hard, salted per hash)
 password_hasher = PasswordHasher()
+
+# Checked when the user doesn't exist, so a failed login takes the same time either way
+DUMMY_HASH = password_hasher.hash("dummy-password-for-timing")
 
 def hash_password(password: str) -> str:
     """Return an Argon2 hash; the salt and parameters are stored inside it."""
@@ -18,3 +28,13 @@ def verify_password(password: str, hashed_password: str) -> bool:
 def needs_rehash(hashed_password: str) -> bool:
     """True if the hash was made with older parameters and should be updated."""
     return password_hasher.check_needs_rehash(hashed_password)
+
+def create_access_token(user_id: int) -> str:
+    """Signed JWT that identifies the user until it expires."""
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": str(user_id),  # Subject: who the token belongs to
+        "iat": now,           # Issued at
+        "exp": now + timedelta(minutes=settings.access_token_expire_minutes),
+    }
+    return jwt.encode(payload, settings.jwt_secret_key, algorithm=JWT_ALGORITHM)

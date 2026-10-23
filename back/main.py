@@ -4,8 +4,9 @@ from sqlalchemy.orm import Session
 
 from .database import get_db
 from .processing import processing_file, ClaudeError, UnsupportedFileError
-from .schemas import UserCreate, UserRead
-from .services import UserAlreadyExistsError, create_user
+from .schemas import LoginRequest, Token, UserCreate, UserRead
+from .security import create_access_token
+from .services import UserAlreadyExistsError, authenticate_user, create_user
 
 app = FastAPI()
 app.add_middleware(
@@ -21,6 +22,18 @@ def register_user(data: UserCreate, db: Session = Depends(get_db)):
         return create_user(db, data)
     except UserAlreadyExistsError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+@app.post("/auth/login", response_model=Token)
+def login(data: LoginRequest, db: Session = Depends(get_db)):
+    user = authenticate_user(db, data.username_or_email, data.password.get_secret_value())
+    if user is None:
+        # Same message whether the user exists or not, so attackers can't probe accounts
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username/email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return Token(access_token=create_access_token(user.id))
 
 @app.post("/base-processing")
 async def base_processing(file: UploadFile):
