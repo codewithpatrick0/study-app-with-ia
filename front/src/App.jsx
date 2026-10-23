@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { StudyMethodTitle, ShowImportMesh, MeshView } from "./components/home";
 import { ShowLogin } from "./components/login";
+import { ShowRegister } from "./components/register";
 
 function App(){
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [authScreen, setAuthScreen] = useState("login"); // "login" | "register"
+  const [notice, setNotice] = useState(null);
   const [mesh, setMesh] = useState(null);
 
   // On page load, ask the backend if the auth cookie is still valid
@@ -44,10 +47,23 @@ function App(){
       <ShowImportMesh onMeshLoaded={setMesh} />
       {mesh && <MeshView mesh={mesh} />}
     </>
+  ) : authScreen === "register" ? (
+    <ShowRegister
+      onRegistered={() => {
+        setNotice("Account created. You can log in now.");
+        setAuthScreen("login");
+      }}
+      onGoToLogin={() => setAuthScreen("login")}
+    />
   ) : (
-    <>
-      <ShowLogin onLogin={() => setIsAuthorized(true)} />
-    </>
+    <ShowLogin
+      notice={notice}
+      onLogin={() => setIsAuthorized(true)}
+      onGoToRegister={() => {
+        setNotice(null);
+        setAuthScreen("register");
+      }}
+    />
   )
 }
 

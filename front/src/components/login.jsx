@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function ShowLogin({ onLogin }) {
+export function ShowLogin({ onLogin, onGoToRegister, notice }) {
     const [usernameOrEmail, setUsernameOrEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
@@ -34,6 +34,8 @@ export function ShowLogin({ onLogin }) {
         <section className="login">
             <h3>Inicia sesión en AI Easy Study</h3>
 
+            {notice && <p>{notice}</p>}
+
             <form onSubmit={handleLogin}>
                 <label htmlFor="username-or-email">Nombre de usuario o correo: </label>
                 <input
@@ -57,6 +59,13 @@ export function ShowLogin({ onLogin }) {
             </form>
 
             {error && <p>{error}</p>}
+
+            <p>
+                ¿No tienes usuario?{' '}
+                <button type="button" className="link-button" onClick={onGoToRegister}>
+                    Regístrate
+                </button>
+            </p>
         </section>
     )
 }
