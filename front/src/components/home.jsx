@@ -25,9 +25,10 @@ export function ShowImportMesh({ onMeshLoaded }){
         formData.append('file', newFile);
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/base-processing', {
+            const response = await fetch('http://localhost:8000/base-processing', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                credentials: 'include' // Send the auth cookie
             })
 
             if (!response.ok) {
