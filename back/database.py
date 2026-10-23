@@ -3,7 +3,10 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from .config.settings import settings
 
-engine = create_engine(settings.database_url)  # Created once, manages the connection pool
+# Created once, manages the connection pool.
+# Neon suspends idle computes and closes their connections, so test each one before use
+# (pool_pre_ping) and replace connections older than 5 minutes (pool_recycle).
+engine = create_engine(settings.database_url, pool_pre_ping=True, pool_recycle=300)
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False)
 
