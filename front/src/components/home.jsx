@@ -32,14 +32,14 @@ export function ShowImportMesh({ onMeshLoaded }){
             })
 
             if (!response.ok) {
-                throw new Error("El servidor respondió con un error");
+                throw new Error("The server responded with an error while processing the mesh.");
             }
             setMeshFile(newFile);
             const data = await response.json();
             onMeshLoaded(data); // Send the mesh up to App
 
         } catch(err){
-            setError('No se pudo procesar la malla. Inténtalo de nuevo.');
+            setError('Error processing the mesh. Please try again.');
             console.error('error:', err)
         } finally {
             setLoading(false);
@@ -73,7 +73,7 @@ export function ShowImportMesh({ onMeshLoaded }){
     )
 }
 
-export function MeshView( {mesh} ) {
+export function MeshView({ mesh }) {
     return (
         <section className='mesh-view'>
             <h2 className='mesh-title'>{mesh.career} - {mesh.university}</h2>
