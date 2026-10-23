@@ -30,7 +30,12 @@ function App(){
   }, []);
 
   if (checkingSession) {
-    return <p>Checking login status...</p>;
+    return (
+      <div className="session-check" role="status">
+        <span className="spinner" aria-hidden="true"></span>
+        <p>Checking login status...</p>
+      </div>
+    );
   }
 
   return isAuthorized ? (
