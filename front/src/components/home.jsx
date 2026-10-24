@@ -1,4 +1,4 @@
-import {useState, useRef} from 'react'
+import {useState, useRef, useEffect} from 'react'
 
 export function StudyMethodTitle(){
     return (
@@ -110,17 +110,29 @@ export function MeshView({ mesh }) {
             </div>
 
             {showCycleForm && (
-                <ShowSetCycle cycleCount={mesh.cycles.length} onCycleSelected={setSelectedCycle} />
+                <ShowSetCycle
+                    cycleCount={mesh.cycles.length}
+                    onCycleSelected={(cycle) => {
+                        setSelectedCycle(cycle);
+                        setShowCycleForm(false); // Unmounting the dialog closes it
+                    }}
+                />
             )}
 
             {/* TODO: call the API to generate the markdown classes for the selected cycle */}
-            {selectedCycle && <p>Ciclo seleccionado: {selectedCycle}</p>}
+            {selectedCycle && <p className='selected-cycle'>Ciclo seleccionado: {selectedCycle}</p>}
         </section>
     )
 }
 
 export function ShowSetCycle({ cycleCount, onCycleSelected }) {
     const [cycle, setCycle] = useState('');
+    const dialogRef = useRef(null);
+
+    // Open as a modal (on top of everything, page behind blocked) once the dialog is in the DOM
+    useEffect(() => {
+        if (!dialogRef.current.open) dialogRef.current.showModal();
+    }, []);
 
     function handleSubmit(e) {
         e.preventDefault(); // Keep the page (and the loaded mesh) instead of reloading
@@ -128,20 +140,33 @@ export function ShowSetCycle({ cycleCount, onCycleSelected }) {
     }
 
     return (
-        <form className='set-cycle-form' onSubmit={handleSubmit}>
-            <label htmlFor='cycle-number'>¿En qué ciclo estás?</label>
-            <input
-                type='number'
-                id='cycle-number'
-                min='1'
-                max={cycleCount}
-                required
-                value={cycle}
-                onChange={(e) => setCycle(e.target.value)}
-            />
+        // The only way out is choosing a cycle: Escape is blocked
+        <dialog
+            ref={dialogRef}
+            className='modal'
+            closedby='none'
+            onCancel={(e) => e.preventDefault()}
+        >
+            <section className='set-cycle-card'>
+                <h3 className='auth-title'>¿En qué ciclo estás?</h3>
 
-            <button type='submit' className='primary-button'>Establecer ciclo</button>
-        </form>
+                <form className='auth-form' onSubmit={handleSubmit}>
+                    <label htmlFor='cycle-number'>Número de ciclo (1 - {cycleCount})</label>
+                    <input
+                        type='number'
+                        id='cycle-number'
+                        min='1'
+                        max={cycleCount}
+                        required
+                        value={cycle}
+                        onChange={(e) => setCycle(e.target.value)}
+                    />
+
+                    <button type='submit' className='primary-button'>Establecer ciclo</button>
+                </form>
+            </section>
+        </dialog>
     )
 }
+
 
