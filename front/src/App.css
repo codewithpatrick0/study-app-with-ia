@@ -9,7 +9,8 @@
   color: transparent;
 }
 
-.mesh-container {
+/* Dashed upload box, shared by the mesh and the syllabus uploads */
+.upload-box {
   position: relative; /* The SVG frame is placed relative to this box */
   display: flex;
   flex-direction: column;
@@ -21,7 +22,7 @@
   padding: 20px;
 }
 
-.mesh-border {
+.upload-border {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -30,7 +31,7 @@
   pointer-events: none; /* Clicks go through to the button */
 }
 
-.mesh-border rect {
+.upload-border rect {
   fill: none;
   stroke: rgb(187, 175, 175);
   stroke-width: 5px;
@@ -46,16 +47,16 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mesh-border rect {
+  .upload-border rect {
     animation: none;
   }
 }
 
-.paragraph-mesh-container {
+.upload-box-label {
   text-align: center;
 }
 
-.mesh-file-name {
+.upload-file-name {
   max-width: 100%;
   margin: 12px 0 0;
   font-size: 0.85rem;
@@ -241,6 +242,35 @@
   color: #4338ca;
   font-size: 0.85rem;
   font-weight: 500;
+}
+
+/* "Do you have the syllabi?" step, centered like the mesh upload */
+.have-syllabus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+
+  animation: fade-in-up 0.5s ease 0.2s both; /* Starts after the header */
+}
+
+.have-syllabus-title {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #4f46e5;
+}
+
+.have-syllabus-text {
+  max-width: 420px;
+  margin: 0;
+  color: #6b7280;
+}
+
+.upload-file-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 /* Empty area where the generated markdown will go */

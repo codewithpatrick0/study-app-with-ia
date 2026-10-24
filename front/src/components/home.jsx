@@ -6,6 +6,15 @@ export function StudyMethodTitle(){
     )
 }
 
+// Dashed frame drawn in SVG so its dashes can move around the border of an .upload-box
+export function UploadBorder() {
+    return (
+        <svg className="upload-border" aria-hidden="true">
+            <rect width="100%" height="100%" rx="20%" ry="20%" pathLength="100" />
+        </svg>
+    )
+}
+
 export function ShowImportMesh({ onMeshLoaded }){
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -47,13 +56,10 @@ export function ShowImportMesh({ onMeshLoaded }){
     }
 
     return (
-        <section className="mesh-container">
-            {/* Dashed frame drawn in SVG so its dashes can move around the border */}
-            <svg className="mesh-border" aria-hidden="true">
-                <rect width="100%" height="100%" rx="20%" ry="20%" pathLength="100" />
-            </svg>
+        <section className="upload-box">
+            <UploadBorder />
 
-            <p className='paragraph-mesh-container'>
+            <p className='upload-box-label'>
                 <strong> Inserta tu malla curricular </strong>
             </p>
 
@@ -72,7 +78,7 @@ export function ShowImportMesh({ onMeshLoaded }){
                 {loading ? 'Procesando...' : 'Insertar'}
             </button>
 
-            {meshFile && <p className='mesh-file-name'>{meshFile.name}</p>}
+            {meshFile && <p className='upload-file-name'>{meshFile.name}</p>}
             {error && <p>{error}</p>}
         </section>
     )
