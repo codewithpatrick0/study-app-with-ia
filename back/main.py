@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, Form, Response, UploadFile, HTTPException, status
+from fastapi import Depends, FastAPI, Form, Query, Response, UploadFile, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -9,6 +9,7 @@ from .database import get_db
 from .dependencies import get_current_user
 from .models import User
 from .processing import (
+    STUDY_MATERIAL_PROMPT_VERSION,
     ClaudeError,
     CourseMismatchError,
     FileTooLargeError,
@@ -27,7 +28,16 @@ from .schemas import (
     UserRead,
 )
 from .security import ACCESS_TOKEN_COOKIE, create_access_token
-from .services import UserAlreadyExistsError, authenticate_user, create_user
+from .services import (
+    UserAlreadyExistsError,
+    authenticate_user,
+    create_user,
+    find_material,
+    list_syllabi,
+    material_hash,
+    save_material,
+    save_syllabus,
+)
 
 app = FastAPI()
 app.add_middleware(
@@ -100,10 +110,11 @@ async def processing_syllabus_endpoint(
     file: UploadFile,
     courses: Annotated[list[str], Form(min_length=1)],  # Course names of the selected cycle
     current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     try:
         data = await file.read()
-        return await processing_syllabus(data, file.content_type, courses)
+        syllabus = await processing_syllabus(data, file.content_type, courses)
     except FileTooLargeError as e:
         raise HTTPException(status_code=status.HTTP_413_CONTENT_TOO_LARGE, detail=str(e))
     except (NotASyllabusError, CourseMismatchError) as e:
@@ -113,8 +124,29 @@ async def processing_syllabus_endpoint(
     except ClaudeError as e:
         raise HTTPException(status_code=502, detail=str(e))
 
+    save_syllabus(db, current_user.id, syllabus)  # So the user never has to upload it again
+    return syllabus
+
+@app.get("/syllabi", response_model=list[Syllabus])
+def get_saved_syllabi(
+    courses: Annotated[list[str], Query(min_length=1)],  # Course names of the selected cycle
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return list_syllabi(db, current_user.id, courses)
+
 @app.post("/study-material", response_model=StudyMaterial)
-async def generate_study_material(data: StudyMaterialRequest, current_user: User = Depends(get_current_user)):
+async def generate_study_material(
+    data: StudyMaterialRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # Already generated for this user? Return it for free instead of paying Claude again
+    topic_hash = material_hash(data, STUDY_MATERIAL_PROMPT_VERSION)
+    saved = find_material(db, current_user.id, topic_hash)
+    if saved is not None:
+        return StudyMaterial(markdown=saved)
+
     try:
         markdown = await processing_study_material(
             career=data.career,
@@ -125,4 +157,6 @@ async def generate_study_material(data: StudyMaterialRequest, current_user: User
         )
     except ClaudeError as e:
         raise HTTPException(status_code=502, detail=str(e))
+
+    save_material(db, current_user.id, topic_hash, data, markdown)
     return StudyMaterial(markdown=markdown)

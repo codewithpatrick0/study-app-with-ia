@@ -47,6 +47,9 @@ SYLLABUS_PROMPT = (
     "Only include what appears in the document."
 )
 
+# Bump it whenever STUDY_MATERIAL_PROMPT changes: saved material from older prompts gets regenerated
+STUDY_MATERIAL_PROMPT_VERSION = 1
+
 # Filled in with build_study_material_prompt(); the <context> values come from the mesh and the syllabus
 STUDY_MATERIAL_PROMPT = """\
 You are writing study material for a university student who studies this topic on their own \
