@@ -78,9 +78,8 @@ export function ShowImportMesh({ onMeshLoaded }){
     )
 }
 
-export function MeshView({ mesh }) {
+export function MeshView({ mesh, onCycleSelected }) {
     const [showCycleForm, setShowCycleForm] = useState(false);
-    const [selectedCycle, setSelectedCycle] = useState(null);
 
     return (
         <section className='mesh-view'>
@@ -113,14 +112,11 @@ export function MeshView({ mesh }) {
                 <ShowSetCycle
                     cycleCount={mesh.cycles.length}
                     onCycleSelected={(cycle) => {
-                        setSelectedCycle(cycle);
                         setShowCycleForm(false); // Unmounting the dialog closes it
+                        onCycleSelected(cycle); // Tell App to switch to the study screen
                     }}
                 />
             )}
-
-            {/* TODO: call the API to generate the markdown classes for the selected cycle */}
-            {selectedCycle && <p className='selected-cycle'>Ciclo seleccionado: {selectedCycle}</p>}
         </section>
     )
 }

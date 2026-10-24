@@ -192,11 +192,74 @@
   backdrop-filter: blur(3px);
 }
 
-.selected-cycle {
-  margin: 16px 0 0;
-  text-align: center;
+.study-view {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.study-header {
+  margin: 20px 0 28px;
+  animation: fade-in-up 0.5s ease both;
+}
+
+.study-eyebrow {
+  margin: 0 0 4px;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #4f46e5;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.study-title {
+  margin: 0 0 16px;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(90deg, #4f46e5, #9333ea);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Courses of the cycle as pill-shaped tags */
+.course-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.course-chips li {
+  padding: 6px 14px;
+  border: 1px solid #e0e7ff;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Empty area where the generated markdown will go */
+.study-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  border: 2px dashed #e0e7ff;
+  border-radius: 16px;
+  background: #fafaff;
+
+  animation: fade-in-up 0.5s ease 0.2s both; /* Starts after the header */
+}
+
+.study-empty {
+  margin: 0;
+  color: #9ca3af;
+  font-weight: 500;
 }
 
 .auth-title {

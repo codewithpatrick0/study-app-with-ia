@@ -3,6 +3,7 @@ import "./App.css";
 import { StudyMethodTitle, ShowImportMesh, MeshView } from "./components/home";
 import { ShowLogin } from "./components/login";
 import { ShowRegister } from "./components/register";
+import { StudyView } from "./components/study";
 
 function App(){
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -10,6 +11,7 @@ function App(){
   const [authScreen, setAuthScreen] = useState("login"); // "login" | "register"
   const [notice, setNotice] = useState(null);
   const [mesh, setMesh] = useState(null);
+  const [selectedCycle, setSelectedCycle] = useState(null);
 
   // On page load, ask the backend if the auth cookie is still valid
   useEffect(() => {
@@ -68,11 +70,21 @@ function App(){
     );
   }
 
+  if (mesh && selectedCycle) {
+    return (
+      <StudyView
+        mesh={mesh}
+        cycleNumber={selectedCycle}
+        onBack={() => setSelectedCycle(null)} // The mesh stays loaded in App
+      />
+    );
+  }
+
   return (
     <>
       <StudyMethodTitle />
       <ShowImportMesh onMeshLoaded={setMesh} />
-      {mesh && <MeshView mesh={mesh} />}
+      {mesh && <MeshView mesh={mesh} onCycleSelected={setSelectedCycle} />}
     </>
   )
 }
