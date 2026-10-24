@@ -176,15 +176,35 @@ async def ask_claude[T: BaseModel](
         messages=[{"role": "user", "content": content}],
         output_format=output_format,
     )
-    if response.stop_reason == "refusal":
-        raise ClaudeError("Claude declined the request")
-    if response.stop_reason == "max_tokens":
-        raise ClaudeError("Response was cut off before finishing")
+    check_stop_reason(response)
 
     if response.parsed_output is None:
         raise ClaudeError("Claude returned no structured output")
 
     return response.parsed_output
+
+async def ask_claude_text(prompt: str, max_tokens: int = 16000) -> str:
+    """Send a prompt to Claude and return its free-form text answer (e.g. Markdown)."""
+    response = await client.messages.create(
+        model=MODEL,
+        max_tokens=max_tokens,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    check_stop_reason(response)
+
+    # The answer can also hold thinking blocks; keep only the text the student will read
+    text = "".join(block.text for block in response.content if block.type == "text").strip()
+    if not text:
+        raise ClaudeError("Claude returned an empty answer")
+
+    return text
+
+def check_stop_reason(response) -> None:
+    """Raise ClaudeError when Claude refused or ran out of tokens, shared by both ask_claude helpers."""
+    if response.stop_reason == "refusal":
+        raise ClaudeError("Claude declined the request")
+    if response.stop_reason == "max_tokens":
+        raise ClaudeError("Response was cut off before finishing")
 
 async def processing_file(data: bytes, media_type: str) -> Mesh:
     """Extract the curriculum mesh from an uploaded PDF or image."""
@@ -200,3 +220,14 @@ async def processing_syllabus(data: bytes, media_type: str) -> Syllabus:
         raise NotASyllabusError("The file doesn't look like a syllabus")
 
     return result.syllabus
+
+async def processing_study_material(
+    career: str,
+    course: str,
+    unit: str,
+    topic: str,
+    course_achievement: str | None = None,
+) -> str:
+    """Generate the Markdown study material for one topic of a course."""
+    prompt = build_study_material_prompt(career, course, unit, topic, course_achievement)
+    return await ask_claude_text(prompt)
