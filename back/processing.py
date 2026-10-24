@@ -1,5 +1,7 @@
 import base64
 import logging
+import re
+import unicodedata
 from collections.abc import Sequence
 from io import BytesIO
 
@@ -22,10 +24,12 @@ IMAGE_TYPES = {'image/png', 'image/jpeg', 'image/gif', 'image/webp'}
 MAX_SYLLABUS_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_SYLLABUS_PAGES = 20
 SYLLABUS_PAGES_TO_SCAN = 2  # Some syllabi start with a cover page
-SYLLABUS_MARKERS = (
-    "sílabo", "silabo", "syllabus", "unidad de aprendizaje", "logro",
+SYLLABUS_MARKERS = (  # Written without accents: they are compared against normalized text
+    "silabo", "syllabus", "unidad de aprendizaje", "logro",
     "temario", "competencias", "resultados de aprendizaje",
 )
+# Words too common to tell course names apart
+COURSE_STOPWORDS = {"de", "del", "la", "las", "el", "los", "y", "e", "en", "a", "al", "para", "con", "por"}
 
 MESH_PROMPT = (
     "Extract the career, university, and every cycle with its courses. "
@@ -100,12 +104,20 @@ class FileTooLargeError(Exception):
 class NotASyllabusError(Exception):
     pass
 
-def looks_like_syllabus(data: bytes, media_type: str) -> bool | None:
-    """Free local check before paying for Claude.
+class CourseMismatchError(Exception):
+    pass
 
-    Returns False when the file clearly isn't a syllabus, True when its first pages mention
-    syllabus words, and None when it can't tell (images or scanned PDFs without text),
-    leaving that decision to Claude.
+def normalize(text: str) -> str:
+    """Lowercase, no accents, words separated by single spaces: 'MATEMÁTICA  Discreta' → 'matematica discreta'."""
+    text = unicodedata.normalize("NFKD", text)  # Splits 'á' into 'a' + accent and the 'ﬁ' ligature into 'fi'
+    text = "".join(char for char in text if not unicodedata.combining(char)).lower()
+    return " ".join(re.findall(r"[a-z0-9]+", text))
+
+def read_syllabus_text(data: bytes, media_type: str) -> str | None:
+    """Free local checks before paying for Claude; returns the normalized text of the first pages.
+
+    Raises when the file clearly can't be a syllabus. Returns None when the text can't be read
+    here (images or scanned PDFs), leaving the decision to Claude.
     """
     if len(data) > MAX_SYLLABUS_BYTES:
         raise FileTooLargeError(f'File is larger than {MAX_SYLLABUS_BYTES // (1024 * 1024)} MB')
@@ -114,20 +126,44 @@ def looks_like_syllabus(data: bytes, media_type: str) -> bool | None:
     if media_type != PDF_TYPE:
         raise UnsupportedFileError(f'Unsupported file type: {media_type}')
 
+    not_a_syllabus = NotASyllabusError("The file doesn't look like a syllabus")
     if not data.startswith(b'%PDF-'):
-        return False  # Claims to be a PDF but isn't one
+        raise not_a_syllabus  # Claims to be a PDF but isn't one
     try:
         reader = PdfReader(BytesIO(data))
         if reader.is_encrypted or len(reader.pages) > MAX_SYLLABUS_PAGES:
-            return False
+            raise not_a_syllabus
         first_pages = reader.pages[:SYLLABUS_PAGES_TO_SCAN]
-        text = " ".join(page.extract_text() or "" for page in first_pages).lower()
+        text = normalize(" ".join(page.extract_text() or "" for page in first_pages))
     except PyPdfError:
-        return False  # Damaged or malformed PDF
+        raise not_a_syllabus  # Damaged or malformed PDF
 
-    if not text.strip():
+    if not text:
         return None  # Scanned PDF: no text to search
-    return any(marker in text for marker in SYLLABUS_MARKERS)
+    if not any(marker in text for marker in SYLLABUS_MARKERS):
+        raise not_a_syllabus
+    return text
+
+def find_course(text: str, courses: Sequence[str]) -> str | None:
+    """Return the course (from the mesh) whose title appears in the text, or None.
+
+    First looks for the full course name; if none appears, for a course whose every
+    keyword appears. On ties, the longest name wins, so 'Cálculo II' beats 'Cálculo I'.
+    """
+    padded = f" {normalize(text)} "  # Spaces around so we only match whole words
+
+    full_matches = [course for course in courses if f" {normalize(course)} " in padded]
+    if full_matches:
+        return max(full_matches, key=len)
+
+    def keywords(course: str) -> set[str]:
+        return {word for word in normalize(course).split() if word not in COURSE_STOPWORDS}
+
+    keyword_matches = [
+        course for course in courses
+        if keywords(course) and all(f" {word} " in padded for word in keywords(course))
+    ]
+    return max(keyword_matches, key=lambda course: len(keywords(course)), default=None)
 
 def build_study_material_prompt(
     career: str,
@@ -210,16 +246,26 @@ async def processing_file(data: bytes, media_type: str) -> Mesh:
     """Extract the curriculum mesh from an uploaded PDF or image."""
     return await ask_claude(MESH_PROMPT, Mesh, files=[(data, media_type)])
 
-async def processing_syllabus(data: bytes, media_type: str) -> Syllabus:
-    """Extract the course outcome and its units with topics from an uploaded syllabus."""
-    if looks_like_syllabus(data, media_type) is False:
-        raise NotASyllabusError("The file doesn't look like a syllabus")
+async def processing_syllabus(data: bytes, media_type: str, courses: Sequence[str]) -> Syllabus:
+    """Extract the course outcome and its units with topics from a syllabus of one of `courses`."""
+    mismatch = CourseMismatchError("The syllabus doesn't belong to any course of this cycle")
+
+    # Text PDFs: check the course title locally, before paying for Claude
+    text = read_syllabus_text(data, media_type)
+    if text is not None and find_course(text, courses) is None:
+        raise mismatch
 
     result = await ask_claude(SYLLABUS_PROMPT, SyllabusResult, files=[(data, media_type)])
     if not result.is_syllabus or result.syllabus is None:
         raise NotASyllabusError("The file doesn't look like a syllabus")
 
-    return result.syllabus
+    # Images and scanned PDFs are only checked here, with the title Claude read
+    course = find_course(result.syllabus.course, courses)
+    if course is None:
+        raise mismatch
+
+    # Use the mesh's spelling so the front can link the syllabus to its course
+    return result.syllabus.model_copy(update={"course": course})
 
 async def processing_study_material(
     career: str,

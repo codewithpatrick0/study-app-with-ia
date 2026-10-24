@@ -1,4 +1,6 @@
-from fastapi import Depends, FastAPI, Response, UploadFile, HTTPException, status
+from typing import Annotated
+
+from fastapi import Depends, FastAPI, Form, Response, UploadFile, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -8,6 +10,7 @@ from .dependencies import get_current_user
 from .models import User
 from .processing import (
     ClaudeError,
+    CourseMismatchError,
     FileTooLargeError,
     NotASyllabusError,
     UnsupportedFileError,
@@ -85,13 +88,17 @@ async def processing_mesh(file: UploadFile, current_user: User = Depends(get_cur
         raise HTTPException(status_code=502, detail=str(e))
 
 @app.post("/processing-syllabus", response_model=Syllabus)
-async def processing_syllabus_endpoint(file: UploadFile, current_user: User = Depends(get_current_user)):
+async def processing_syllabus_endpoint(
+    file: UploadFile,
+    courses: Annotated[list[str], Form(min_length=1)],  # Course names of the selected cycle
+    current_user: User = Depends(get_current_user),
+):
     try:
         data = await file.read()
-        return await processing_syllabus(data, file.content_type)
+        return await processing_syllabus(data, file.content_type, courses)
     except FileTooLargeError as e:
         raise HTTPException(status_code=status.HTTP_413_CONTENT_TOO_LARGE, detail=str(e))
-    except NotASyllabusError as e:
+    except (NotASyllabusError, CourseMismatchError) as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     except UnsupportedFileError as e:
         raise HTTPException(status_code=415, detail=str(e))
