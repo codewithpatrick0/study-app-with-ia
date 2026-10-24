@@ -15,9 +15,17 @@ from .processing import (
     NotASyllabusError,
     UnsupportedFileError,
     processing_file,
+    processing_study_material,
     processing_syllabus,
 )
-from .schemas import LoginRequest, Syllabus, UserCreate, UserRead
+from .schemas import (
+    LoginRequest,
+    StudyMaterial,
+    StudyMaterialRequest,
+    Syllabus,
+    UserCreate,
+    UserRead,
+)
 from .security import ACCESS_TOKEN_COOKIE, create_access_token
 from .services import UserAlreadyExistsError, authenticate_user, create_user
 
@@ -104,3 +112,17 @@ async def processing_syllabus_endpoint(
         raise HTTPException(status_code=415, detail=str(e))
     except ClaudeError as e:
         raise HTTPException(status_code=502, detail=str(e))
+
+@app.post("/study-material", response_model=StudyMaterial)
+async def generate_study_material(data: StudyMaterialRequest, current_user: User = Depends(get_current_user)):
+    try:
+        markdown = await processing_study_material(
+            career=data.career,
+            course=data.course,
+            unit=data.unit,
+            topic=data.topic,
+            course_achievement=data.course_achievement,
+        )
+    except ClaudeError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+    return StudyMaterial(markdown=markdown)
