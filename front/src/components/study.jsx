@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { UploadBorder } from './home'
 import { StudyMaterial } from './material'
 import { topicKey } from '../topicKey'
@@ -21,6 +21,20 @@ async function fetchStudyMaterial(body, signal) {
     }
     const data = await response.json();
     return data.markdown;
+}
+
+// The syllabi this user already uploaded for these courses, so they don't upload them again
+async function fetchSavedSyllabi(courses) {
+    const params = new URLSearchParams();
+    courses.forEach((course) => params.append('courses', course)); // ?courses=A&courses=B → list[str]
+
+    const response = await fetch(`http://localhost:8000/syllabi?${params}`, {
+        credentials: 'include', // Send the auth cookie
+    });
+    if (!response.ok) {
+        throw new Error(`The server responded with ${response.status}`);
+    }
+    return response.json();
 }
 
 // Runs async tasks with at most `limit` of them in flight
@@ -48,40 +62,71 @@ export function StudyView({ mesh, cycleNumber, onBack }) {
         setMaterials((previous) => ({ ...previous, [key]: value })); // Function form: many updates arrive at once
     }
 
-    async function generateMaterials(extracted) {
-        abortRef.current?.abort(); // A new upload replaces the previous generation
+    async function generateTopic(key, syllabus, unit, topic, controller) {
+        if (controller.signal.aborted) return;
+        updateMaterial(key, { status: 'generating' });
+        try {
+            const markdown = await fetchStudyMaterial({
+                career: mesh.career,
+                course: syllabus.course,
+                unit: unit.title,
+                topic,
+                course_achievement: syllabus.course_achievement,
+            }, controller.signal);
+            updateMaterial(key, { status: 'done', markdown });
+        } catch (err) {
+            if (controller.signal.aborted) return;
+            console.error('error:', err);
+            updateMaterial(key, { status: 'error' });
+        }
+    }
+
+    // Requests the material of every topic; topics the backend already saved come back at once and free.
+    // Topics already on screen are skipped, except those of `freshCourses` (just uploaded or replaced).
+    async function generateMaterials(allSyllabi, freshCourses) {
+        abortRef.current?.abort(); // A new generation replaces the previous one
         const controller = new AbortController();
         abortRef.current = controller;
 
-        setSyllabi(extracted);
-        setMaterials({});
+        setSyllabi(allSyllabi);
 
-        const tasks = extracted.flatMap((syllabus) =>
+        const tasks = allSyllabi.flatMap((syllabus) =>
             syllabus.units.flatMap((unit) =>
-                unit.topics.map((topic, index) => async () => {
-                    if (controller.signal.aborted) return;
+                unit.topics.flatMap((topic, index) => {
                     const key = topicKey(syllabus.course, unit.number, index);
-                    updateMaterial(key, { status: 'generating' });
-                    try {
-                        const markdown = await fetchStudyMaterial({
-                            career: mesh.career,
-                            course: syllabus.course,
-                            unit: unit.title,
-                            topic,
-                            course_achievement: syllabus.course_achievement,
-                        }, controller.signal);
-                        updateMaterial(key, { status: 'done', markdown });
-                    } catch (err) {
-                        if (controller.signal.aborted) return;
-                        console.error('error:', err);
-                        updateMaterial(key, { status: 'error' });
-                    }
+                    const alreadyShown = materials[key]?.status === 'done';
+                    if (alreadyShown && !freshCourses.includes(syllabus.course)) return [];
+                    return [() => generateTopic(key, syllabus, unit, topic, controller)];
                 })
             )
         );
 
         await runWithLimit(tasks, MAX_PARALLEL_TOPICS);
     }
+
+    // New uploads are added to the saved syllabi; a course uploaded again replaces its old syllabus
+    function handleSyllabiExtracted(extracted) {
+        const extractedCourses = extracted.map((syllabus) => syllabus.course);
+        const kept = syllabi.filter((syllabus) => !extractedCourses.includes(syllabus.course));
+        generateMaterials([...kept, ...extracted], extractedCourses);
+    }
+
+    // useEffectEvent: the effect below can call the latest generateMaterials without re-running
+    // every time it changes (it's a new function on every render)
+    const showSavedSyllabi = useEffectEvent((saved) => {
+        generateMaterials(saved, saved.map((syllabus) => syllabus.course));
+    });
+
+    // On opening the cycle, bring back the syllabi the user already uploaded
+    useEffect(() => {
+        let ignore = false; // StrictMode runs this twice in development; only the last run may continue
+        fetchSavedSyllabi(cycle.courses)
+            .then((saved) => {
+                if (!ignore && saved.length > 0) showSavedSyllabi(saved);
+            })
+            .catch((err) => console.error('error:', err));
+        return () => { ignore = true; };
+    }, [cycle.courses]);
 
     return (
         <main className='study-view'>
@@ -100,7 +145,7 @@ export function StudyView({ mesh, cycleNumber, onBack }) {
                 </ul>
             </header>
 
-            <HaveSyllabus courses={cycle.courses} onSyllabiExtracted={generateMaterials} />
+            <HaveSyllabus courses={cycle.courses} onSyllabiExtracted={handleSyllabiExtracted} />
 
             {syllabi.length > 0 && <StudyMaterial syllabi={syllabi} materials={materials} />}
         </main>
