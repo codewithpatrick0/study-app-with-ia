@@ -6,7 +6,14 @@ from .config.settings import settings
 from .database import get_db
 from .dependencies import get_current_user
 from .models import User
-from .processing import processing_file, processing_syllabus, ClaudeError, UnsupportedFileError
+from .processing import (
+    ClaudeError,
+    FileTooLargeError,
+    NotASyllabusError,
+    UnsupportedFileError,
+    processing_file,
+    processing_syllabus,
+)
 from .schemas import LoginRequest, Syllabus, UserCreate, UserRead
 from .security import ACCESS_TOKEN_COOKIE, create_access_token
 from .services import UserAlreadyExistsError, authenticate_user, create_user
@@ -82,6 +89,10 @@ async def processing_syllabus_endpoint(file: UploadFile, current_user: User = De
     try:
         data = await file.read()
         return await processing_syllabus(data, file.content_type)
+    except FileTooLargeError as e:
+        raise HTTPException(status_code=status.HTTP_413_CONTENT_TOO_LARGE, detail=str(e))
+    except NotASyllabusError as e:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     except UnsupportedFileError as e:
         raise HTTPException(status_code=415, detail=str(e))
     except ClaudeError as e:

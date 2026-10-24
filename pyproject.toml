@@ -10,5 +10,6 @@ dependencies = [
     "psycopg[binary]>=3.3.6",
     "pydantic-settings>=2.16.1",
     "pyjwt>=2.15.1",
+    "pypdf>=6.21.2",
     "sqlalchemy>=2.1.6",
 ]
