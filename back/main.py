@@ -64,8 +64,8 @@ def me(current_user: User = Depends(get_current_user)):
     # get_current_user already answers 401 when the cookie is missing or invalid
     return current_user
 
-@app.post("/base-processing")
-async def base_processing(file: UploadFile, current_user: User = Depends(get_current_user)):
+@app.post("/processing-mesh")
+async def processing_mesh(file: UploadFile, current_user: User = Depends(get_current_user)):
     try:
         data = await file.read()
 
