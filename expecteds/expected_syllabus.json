@@ -1,0 +1,47 @@
+{
+  "course": "Algoritmos y Estructuras de Datos",
+  "course_achievement": "Al finalizar el curso, el estudiante construye aplicaciones de software en un lenguaje de programación orientado a objetos, considerando las estructuras de datos y algoritmos de acuerdo a la problemática planteada.",
+  "units": [
+    {
+      "number": 1,
+      "title": "Estructuras de datos lineales",
+      "topics": [
+        "Introducción a las estructuras de datos. ¿Qué es una estructura de datos? Cómo almacenan datos las computadoras. Tipos de Estructuras: estáticas, dinámicas lineales, dinámicas no lineales.",
+        "ESTRUCTURAS DE DATOS ESTÁTICAS. Operaciones con arreglos unidimensionales: inserción, actualización, eliminación, recorrido, copia.",
+        "Operaciones con Arreglos Unidimensionales: comparación, clonación, fusión.",
+        "Operaciones con Arreglos Bidimensionales: - Matrices cuadradas poco densas: Matriz triangular inferior, Matriz triangular superior, Matriz tridiagonal. - Matrices simétricas y asimétricas",
+        "Integración de temas. (Repaso)"
+      ]
+    },
+    {
+      "number": 2,
+      "title": "Estructuras de datos dinámicas",
+      "topics": [
+        "ESTRUCTURAS DE DATOS DINÁMICAS: Tipo Abstracto de Datos (TAD). Conceptos, Especificación informal de un TAD Especificación formal de un TAD. Implementación del TAD.",
+        "LISTAS ENLAZADAS: Conceptos básicos y estructura. Implementación de listas enlazadas simples mediante nodo y apuntadores. Operaciones básicas: inserción, eliminación.",
+        "Lista enlazada simple. Operaciones básicas: recorrido, búsqueda, ordenamiento.",
+        "Listas doblemente enlazadas: Operaciones básicas. Listas circulares: Operaciones básicas.",
+        "Integración de temas. (Repaso)."
+      ]
+    },
+    {
+      "number": 3,
+      "title": "Pilas y Colas",
+      "topics": [
+        "PILAS: Definición. Características. Operaciones básicas: push, pop, otros. Implementación mediante arreglos. Pila Dinámica: Implementación mediante listas enlazadas.",
+        "COLAS. Definición. Características. Operaciones básicas: enqueue, dequeue, otros. Implementación mediante arreglos. Cola Dinámica: Implementación mediante listas enlazadas. Colas con prioridad."
+      ]
+    },
+    {
+      "number": 4,
+      "title": "Estructuras de Datos no lineales",
+      "topics": [
+        "Árboles generales y terminología. Representación gráfica de un árbol. Características. Tipos de árboles. ARBOLES BINARIOS: Implementación mediante nodos y punteros. Recorrido (preorden, inorden, postorden).",
+        "ARBOLES BINARIOS: Operaciones básicas: inserción, recorrido, eliminación, búsqueda.",
+        "Integración de temas. (Repaso)",
+        "ARBOL BINARIO DE BUSQUEDA (ABB) Operaciones básicas: inserción, eliminación, búsqueda.",
+        "ARBOLES AVL Inserción en árboles de búsqueda equilibrados: rotaciones. Implementación de la inserción con balanceo y rotaciones. Borrado de un nodo en un árbol equilibrado."
+      ]
+    }
+  ]
+}
