@@ -6,8 +6,8 @@ from .config.settings import settings
 from .database import get_db
 from .dependencies import get_current_user
 from .models import User
-from .processing import processing_file, ClaudeError, UnsupportedFileError
-from .schemas import LoginRequest, UserCreate, UserRead
+from .processing import processing_file, processing_syllabus, ClaudeError, UnsupportedFileError
+from .schemas import LoginRequest, Syllabus, UserCreate, UserRead
 from .security import ACCESS_TOKEN_COOKIE, create_access_token
 from .services import UserAlreadyExistsError, authenticate_user, create_user
 
@@ -72,6 +72,16 @@ async def processing_mesh(file: UploadFile, current_user: User = Depends(get_cur
         processed_file = await processing_file(data, file.content_type)
 
         return processed_file
+    except UnsupportedFileError as e:
+        raise HTTPException(status_code=415, detail=str(e))
+    except ClaudeError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+
+@app.post("/processing-syllabus", response_model=Syllabus)
+async def processing_syllabus_endpoint(file: UploadFile, current_user: User = Depends(get_current_user)):
+    try:
+        data = await file.read()
+        return await processing_syllabus(data, file.content_type)
     except UnsupportedFileError as e:
         raise HTTPException(status_code=415, detail=str(e))
     except ClaudeError as e:
