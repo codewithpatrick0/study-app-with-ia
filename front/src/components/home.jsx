@@ -79,6 +79,9 @@ export function ShowImportMesh({ onMeshLoaded }){
 }
 
 export function MeshView({ mesh }) {
+    const [showCycleForm, setShowCycleForm] = useState(false);
+    const [selectedCycle, setSelectedCycle] = useState(null);
+
     return (
         <section className='mesh-view'>
             <h2 className='mesh-title'>{mesh.career} - {mesh.university}</h2>
@@ -97,11 +100,48 @@ export function MeshView({ mesh }) {
             </div>
 
             <div className='mesh-actions'>
-                {/* TODO: call the API to generate the markdown classes for the user's cycle */}
-                <button type='button' className='primary-button'>
+                <button
+                    type='button'
+                    className='primary-button'
+                    onClick={() => setShowCycleForm(true)}
+                >
                     Generar material de estudio
                 </button>
             </div>
+
+            {showCycleForm && (
+                <ShowSetCycle cycleCount={mesh.cycles.length} onCycleSelected={setSelectedCycle} />
+            )}
+
+            {/* TODO: call the API to generate the markdown classes for the selected cycle */}
+            {selectedCycle && <p>Ciclo seleccionado: {selectedCycle}</p>}
         </section>
     )
 }
+
+export function ShowSetCycle({ cycleCount, onCycleSelected }) {
+    const [cycle, setCycle] = useState('');
+
+    function handleSubmit(e) {
+        e.preventDefault(); // Keep the page (and the loaded mesh) instead of reloading
+        onCycleSelected(Number(cycle)); // Inputs give strings; send a number up
+    }
+
+    return (
+        <form className='set-cycle-form' onSubmit={handleSubmit}>
+            <label htmlFor='cycle-number'>¿En qué ciclo estás?</label>
+            <input
+                type='number'
+                id='cycle-number'
+                min='1'
+                max={cycleCount}
+                required
+                value={cycle}
+                onChange={(e) => setCycle(e.target.value)}
+            />
+
+            <button type='submit' className='primary-button'>Establecer ciclo</button>
+        </form>
+    )
+}
+
