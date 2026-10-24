@@ -5,7 +5,7 @@ import anthropic
 from pydantic import BaseModel
 
 from .config.settings import settings
-from .schemas import Mesh
+from .schemas import Mesh, Syllabus
 
 MODEL = 'claude-haiku-5-5'
 PDF_TYPE = 'application/pdf'
@@ -14,6 +14,13 @@ IMAGE_TYPES = {'image/png', 'image/jpeg', 'image/gif', 'image/webp'}
 MESH_PROMPT = (
     "Extract the career, university, and every cycle with its courses. "
     "Use course names exactly as written in the document. "
+    "Only include what appears in the document."
+)
+
+SYLLABUS_PROMPT = (
+    "Extract the course name, its general learning outcome, and every learning unit with its topics. "
+    "Take the topics from each unit's syllabus outline, one per bullet, exactly as written. "
+    "Ignore grading, evaluation percentages, schedule and bibliography. "
     "Only include what appears in the document."
 )
 
@@ -69,3 +76,7 @@ async def ask_claude[T: BaseModel](
 async def processing_file(data: bytes, media_type: str) -> Mesh:
     """Extract the curriculum mesh from an uploaded PDF or image."""
     return await ask_claude(MESH_PROMPT, Mesh, files=[(data, media_type)])
+
+async def processing_syllabus(data: bytes, media_type: str) -> Syllabus:
+    """Extract the course outcome and its units with topics from an uploaded syllabus."""
+    return await ask_claude(SYLLABUS_PROMPT, Syllabus, files=[(data, media_type)])
